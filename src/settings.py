@@ -18,3 +18,6 @@ POSTGRES_USER = os.getenv("POSTGRES_USER")
 POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
 POSTGRES_DB = os.getenv("POSTGRES_DB")
 CLOSE_PERIOD = datetime.timedelta(hours=1)
+
+HOUR_START = 8
+HOUR_END = 22

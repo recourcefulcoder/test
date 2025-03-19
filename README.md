@@ -7,6 +7,7 @@ Table of contents:
 - [Environment variables](#environment-variables)
 - [Documentation](#documentation)
   - [Project settings](#settings)
+  - [Schedule model](#schedule-sqlalchemy-table-model)
   - [Endpoint docs](#endpoint-docs)
 
 ## Running instructions
@@ -48,24 +49,36 @@ settings.py module stores service configuration; contained variables are:
 
 | variable | value |
 | -------- | ----- |
-| POSTGRES_USER ||
-| POSTGRES_PASSWORD ||
-| POSTGRES_DB ||
-| CLOSE_PERIOD ||
+| POSTGRES_USER | represents POSTGRES_USER env variable |
+| POSTGRES_PASSWORD | represents POSTGRES_PASSWORD env variable |
+| POSTGRES_DB | represents POSTGRES_DB env variable |
+| CLOSE_PERIOD | datetime.timedelta object configuring for what time period should "/next_takings" endpoint calculate takings |
+|||
+| HOUR_START | specifies start of the day hour, defaults to 8 |
+| HOUR_END | specifies end of the day hour, defaults to 22 |
+
+### Schedule SQLAlchemy table model
+
+- hf
 
 ### Endpoint docs
 #### /schedule
 INPUT DATA FORMAT
 
-Input data must contain following fields:
+Required input JSON keys:
 - name - representing name of the medicine
 - period - representing period of time with which medicine must be taken; 
 must be specified whether as an **integer** (then considered time in seconds) or 
 in [ISO8601 format](https://en.wikipedia.org/wiki/ISO_8601)
-- end_date (OPTIONAL) - date of stopping taking medicine; if not provided 
-medicine is considered to be eternal. Should be whether a valid int value (thus interpreted 
-as amount of seconds since 1.1.1970) or in one of given formats:
-  - YYYY-MM-DDTHH:MM:SS.f 
-  - YYYY-MM-DD
 - user_id - id of an animal to use it 
 
+Optional input JSON keys:
+- duration - treatment duration; if not provided treatment course is considered eternal. 
+Should be whether a valid int value (thus interpreted as amount of seconds) or in 
+[ISO8601 format](https://en.wikipedia.org/wiki/ISO_8601)
+- start_date - time for starting the treatment course, if not provided considered to be 
+the time of schedule creation. Should be either valid int value (thus interpreted as amount 
+of seconds since [UNIX epoch](https://en.wikipedia.org/wiki/Unix_time)) or in 
+one of following formats:
+  - YYYY-MM-DDTHH:MM:SS.f
+  - YYYY-MM-DD 

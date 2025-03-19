@@ -1,4 +1,5 @@
 import datetime
+from typing import Union
 
 from sqlalchemy import DateTime
 from sqlalchemy.sql import func
@@ -14,14 +15,40 @@ class Schedule(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str]
 
-    creation_date: Mapped[datetime.timedelta] = mapped_column(
-        DateTime(timezone=True),
-        server_default=func.now()
+    start_date: Mapped[datetime.datetime] = mapped_column(
+        DateTime,
+        default=datetime.datetime.utcnow()
     )
     period: Mapped[datetime.timedelta]
-    end_date: Mapped[datetime.timedelta] = mapped_column(
-        DateTime(timezone=True),
+    end_date: Mapped[datetime.datetime] = mapped_column(
+        DateTime,
         nullable=True,
     )
 
     user_id: Mapped[int]
+
+    def __init__(self, *args, **kwargs):
+        duration = None
+        if "duration" in kwargs.keys():
+            duration = kwargs["duration"]
+            del kwargs["duration"]
+        super().__init__(**kwargs)
+        if self.start_date is None:
+            self.start_date = datetime.datetime.utcnow()
+        if duration is not None:
+            self.duration = duration
+
+    @property
+    def duration(self) -> Union[int, datetime.timedelta]:
+        if self.start_date is None:
+            raise ValueError("Creation date not specified!")
+        if self.end_date is None:
+            return -1
+        return self.end_date - self.start_date
+
+    @duration.setter
+    def duration(self, value: datetime.timedelta):
+        if self.start_date is None:
+            raise ValueError("creation date not specified!")
+        self.end_date = self.start_date + value
+
